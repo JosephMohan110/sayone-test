@@ -1,4 +1,5 @@
 import logging
+from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -13,10 +14,11 @@ class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user).order_by('-created_at')
+        return Task.objects.filter(user=self.request.user).order_by('order', '-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        max_order = Task.objects.filter(user=self.request.user).aggregate(models.Max('order')).get('order__max') or 0
+        serializer.save(user=self.request.user, order=(max_order + 1))
 
     def create(self, request, *args, **kwargs):
         try:
@@ -79,3 +81,17 @@ class TaskViewSet(viewsets.ModelViewSet):
             priority = 'low'
         
         return Response({'priority': priority})
+
+    @action(detail=False, methods=['post'])
+    def reorder(self, request):
+        order_data = request.data.get('order', [])
+        if not isinstance(order_data, list):
+            return Response({'error': 'Invalid order payload'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            for index, task_id in enumerate(order_data):
+                Task.objects.filter(id=task_id, user=request.user).update(order=index)
+            return Response({'status': 'reordered'})
+        except Exception as exc:
+            logger.exception('Task reorder failed')
+            return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)

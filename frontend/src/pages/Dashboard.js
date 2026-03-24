@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
-import { fetchTasks, createTask, updateTask, deleteTask, completeTask } from '../services/api';
+import { fetchTasks, createTask, updateTask, deleteTask, completeTask, reorderTasks } from '../services/api';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState({ total: 0, completed: 0, percent: 0 });
   const [error, setError] = useState(null);
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
 
   useEffect(() => {
     loadTasks();
@@ -21,9 +22,23 @@ const Dashboard = () => {
       const total = tasks.length;
       const completed = tasks.filter(t => t.completed).length;
       const percent = total ? (completed / total * 100).toFixed(1) : 0;
-      setSummary({ total, completed, percent });
+
+      const now = new Date();
+      let dueSoon = 0;
+      let overdue = 0;
+
+      tasks.forEach((t) => {
+        if (t.completed || !t.due_date) return;
+        const due = new Date(t.due_date + 'T23:59:59');
+        const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) overdue += 1;
+        if (diffDays === 1) dueSoon += 1;
+      });
+
+      setSummary({ total, completed, percent, dueSoon, overdue });
     } else {
-      setSummary({ total: 0, completed: 0, percent: 0 });
+      setSummary({ total: 0, completed: 0, percent: 0, dueSoon: 0, overdue: 0 });
     }
   }, [tasks]);
 
@@ -104,9 +119,47 @@ const Dashboard = () => {
     setEditingTask(task);
   };
 
+  const handleDragStart = (e, taskId) => {
+    setDraggedTaskId(taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, taskId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e, targetTaskId) => {
+    e.preventDefault();
+
+    if (draggedTaskId === null || draggedTaskId === targetTaskId) return;
+
+    const reordered = [...tasks];
+    const dragIndex = reordered.findIndex((task) => task.id === draggedTaskId);
+    const targetIndex = reordered.findIndex((task) => task.id === targetTaskId);
+
+    if (dragIndex < 0 || targetIndex < 0) return;
+
+    const [moved] = reordered.splice(dragIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
+
+    setTasks(reordered);
+    setDraggedTaskId(null);
+
+    try {
+      // Persist the new order on server
+      await reorderTasks(reordered.map((task) => task.id));
+    } catch (error) {
+      console.error('Error reordering tasks:', error);
+      setError('Failed to reorder tasks, please reload.');
+    }
+  };
+
   const cancelEdit = () => {
     setEditingTask(null);
   };
+
+  const visibleTasks = tasks;
 
   return (
     <div className="container dashboard-container">
@@ -128,7 +181,14 @@ const Dashboard = () => {
         <p>Total tasks: {summary.total}</p>
         <p>Completed: {summary.completed}</p>
         <p>Completion: {summary.percent}%</p>
+        <p style={{ color: summary.dueSoon > 0 ? 'orange' : 'inherit' }}>
+          Due in 1 day: {summary.dueSoon || 0}
+        </p>
+        <p style={{ color: summary.overdue > 0 ? 'red' : 'inherit' }}>
+          Overdue: {summary.overdue || 0}
+        </p>
       </div>
+
       <TaskForm
         onCreate={handleCreate}
         onUpdate={handleUpdate}
@@ -139,10 +199,13 @@ const Dashboard = () => {
         <p>Loading tasks...</p>
       ) : (
         <TaskList
-          tasks={tasks}
+          tasks={visibleTasks}
           onDelete={handleDelete}
           onEdit={handleEdit}
           onComplete={handleComplete}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         />
       )}
     </div>

@@ -17,6 +17,9 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    order = models.PositiveIntegerField(default=0)
+    image_url = models.TextField(blank=True, null=True)
+
     # Optional AI priority suggestion (could be stored)
     priority = models.CharField(max_length=10, blank=True, default='medium')  # low, medium, high
 

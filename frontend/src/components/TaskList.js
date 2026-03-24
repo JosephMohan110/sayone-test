@@ -1,7 +1,7 @@
 import React from 'react';
 import TaskItem from './TaskItem';
 
-const TaskList = ({ tasks, onDelete, onEdit, onComplete }) => {
+const TaskList = ({ tasks, onDelete, onEdit, onComplete, onDragStart, onDragOver, onDrop }) => {
   if (!tasks.length) {
     return <p>No tasks yet. Create one!</p>;
   }
@@ -15,6 +15,9 @@ const TaskList = ({ tasks, onDelete, onEdit, onComplete }) => {
           onDelete={onDelete}
           onEdit={onEdit}
           onComplete={onComplete}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
         />
       ))}
     </div>

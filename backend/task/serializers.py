@@ -8,7 +8,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'title', 'description', 'category', 'due_date',
-            'priority', 'completed', 'created_at', 'user'
+            'priority', 'completed', 'created_at', 'user', 'order', 'image_url'
         ]
         read_only_fields = ('id', 'user', 'created_at')
 
@@ -18,10 +18,11 @@ class TaskSerializer(serializers.ModelSerializer):
         return value.strip()
 
     def validate_category(self, value):
-        valid = [choice[0] for choice in Task.CATEGORY_CHOICES]
-        if value not in valid:
-            raise serializers.ValidationError(f'Invalid category. Choose from: {", ".join(valid)}')
-        return value
+        if not value or not value.strip():
+            raise serializers.ValidationError('Category cannot be empty')
+        if len(value) > 20:
+            raise serializers.ValidationError('Category must be 20 characters or fewer')
+        return value.strip()
 
     def validate_priority(self, value):
         valid_priorities = ['low', 'medium', 'high']

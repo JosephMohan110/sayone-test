@@ -58,4 +58,5 @@ export const createTask = (newTask) => API.post('/tasks/', newTask);
 export const updateTask = (id, updatedTask) => API.put(`/tasks/${id}/`, updatedTask);
 export const deleteTask = (id) => API.delete(`/tasks/${id}/`);
 export const completeTask = (id) => API.post(`/tasks/${id}/complete/`);
+export const reorderTasks = (order) => API.post('/tasks/reorder/', { order });
 export const suggestPriority = (title) => API.post('/tasks/suggest_priority/', { title });

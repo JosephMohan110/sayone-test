@@ -8,6 +8,7 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
   const [category, setCategory] = useState('other');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('medium');
+  const [imageUrl, setImageUrl] = useState('');
   const [suggestedPriority, setSuggestedPriority] = useState(null);
 
   useEffect(() => {
@@ -15,7 +16,8 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
       console.log('Editing task:', editingTask);
       setTitle(editingTask.title);
       setDescription(editingTask.description || '');
-      setCategory(editingTask.category);
+      setCategory(editingTask.category || 'other');
+      setImageUrl(editingTask.image_url || '');
       setDueDate(editingTask.due_date || '');
       setPriority(editingTask.priority || 'medium');
     } else {
@@ -27,6 +29,7 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
     setTitle('');
     setDescription('');
     setCategory('other');
+    setImageUrl('');
     setDueDate('');
     setPriority('medium');
     setSuggestedPriority(null);
@@ -49,15 +52,42 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
     }
   };
 
+  const handleFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImageUrl(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDropImage = (e) => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    const file = dt.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleFile(file);
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleFile(file);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    const chosenCategory = category?.trim() ? category.trim() : 'other';
+
     const taskData = {
       title: title.trim(),
       description: description.trim(),
-      category: category,
+      category: chosenCategory,
       due_date: dueDate || null,
       priority: priority,
+      image_url: imageUrl || '',
       completed: editingTask ? editingTask.completed : false,
     };
     
@@ -110,6 +140,7 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Work, Personal, Shopping, Other, etc."
+          autoComplete="off"
         />
         <datalist id="category-options">
           <option value="work" />
@@ -119,6 +150,34 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
           <option value="family" />
           <option value="health" />
         </datalist>
+      </div>
+      <div>
+        <label>Image (drag & drop or file select)</label>
+        <div
+          className="image-drop-zone"
+          onDrop={handleDropImage}
+          onDragOver={(e) => e.preventDefault()}
+          style={{
+            border: '2px dashed #aaa',
+            padding: '16px',
+            textAlign: 'center',
+            marginBottom: '8px',
+          }}
+        >
+          <p>Drop an image here, or click to select</p>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileInputChange}
+            style={{ marginTop: '8px' }}
+          />
+        </div>
+        {imageUrl && (
+          <div>
+            <p>Preview:</p>
+            <img src={imageUrl} alt="Task" style={{ maxWidth: '100%', maxHeight: '180px' }} />
+          </div>
+        )}
       </div>
       <div>
         <label>Due Date</label>
