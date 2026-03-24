@@ -3,17 +3,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await login({ username, password });
+      await login({ username: email, password });
     } catch (err) {
       setError('Invalid credentials');
     }
@@ -25,10 +24,10 @@ const Login = () => {
       <form className="auth-form" onSubmit={handleSubmit}>
         <input
           className="auth-input"
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input

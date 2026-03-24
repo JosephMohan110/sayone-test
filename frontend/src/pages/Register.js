@@ -6,7 +6,8 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    password2: ''
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -14,11 +15,46 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Frontend quick validation for simple feedback
+    const usernameTrimmed = formData.username.trim();
+    if (!/^[A-Za-z ]+$/.test(usernameTrimmed) || usernameTrimmed.length < 1) {
+      setError('Username should contain only letters (spaces allowed) and at least 1 character.');
+      return;
+    }
+
+    if (!formData.password || !formData.password2) {
+      setError('Please provide both password and confirm password.');
+      return;
+    }
+
+    if (formData.password !== formData.password2) {
+      setError('Password confirmation does not match.');
+      return;
+    }
+
     try {
       await register(formData);
       navigate('/login');
     } catch (err) {
-      setError('Registration failed');
+      const responseData = err.response?.data;
+      if (responseData) {
+        if (typeof responseData === 'object') {
+          const errors = [];
+          for (const k in responseData) {
+            if (Array.isArray(responseData[k])) {
+              errors.push(...responseData[k]);
+            } else {
+              errors.push(responseData[k]);
+            }
+          }
+          setError(errors.flat().join(' '));
+        } else {
+          setError(String(responseData));
+        }
+      } else {
+        setError('Registration failed. Please check your input and try again.');
+      }
     }
   };
 
@@ -57,6 +93,15 @@ const Register = () => {
           name="password"
           placeholder="Password"
           value={formData.password}
+          onChange={handleChange}
+          required
+        />
+        <input
+          className="auth-input"
+          type="password"
+          name="password2"
+          placeholder="Confirm password"
+          value={formData.password2}
           onChange={handleChange}
           required
         />
