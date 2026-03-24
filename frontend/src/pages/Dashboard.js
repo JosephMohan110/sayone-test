@@ -24,16 +24,26 @@ const Dashboard = () => {
       const percent = total ? (completed / total * 100).toFixed(1) : 0;
 
       const now = new Date();
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       let dueSoon = 0;
       let overdue = 0;
 
       tasks.forEach((t) => {
         if (t.completed || !t.due_date) return;
-        const due = new Date(t.due_date + 'T23:59:59');
-        const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
 
-        if (diffDays < 0) overdue += 1;
-        if (diffDays === 1) dueSoon += 1;
+        const [year, month, day] = t.due_date.split('-').map(Number);
+        if (!year || !month || !day) return;
+
+        const dueDate = new Date(year, month - 1, day);
+        const dueMidnight = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+
+        const diffDays = Math.floor((dueMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+          overdue += 1;
+        } else if (diffDays === 1) {
+          dueSoon += 1;
+        }
       });
 
       setSummary({ total, completed, percent, dueSoon, overdue });
