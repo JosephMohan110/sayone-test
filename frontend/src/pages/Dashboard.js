@@ -104,12 +104,14 @@ const Dashboard = () => {
 
   return (
     <div className="container">
-      <h1>Smart Task Tracker</h1>
-      {error && (
-        <div style={{ background: '#ffebee', color: '#c62828', padding: '10px', marginBottom: '20px', borderRadius: '5px' }}>
+      <h1>Project: Smart Task Tracker</h1>
+      <h2 className="project-heading">Manage your tasks in a clean, white UI</h2>
+{error && (
+        <div className="error">
           Error: {error}
         </div>
       )}
+
       <div className="summary">
         <p>Total tasks: {summary.total}</p>
         <p>Completed: {summary.completed}</p>

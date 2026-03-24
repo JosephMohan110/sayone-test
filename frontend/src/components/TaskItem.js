@@ -14,10 +14,10 @@ const TaskItem = ({ task, onDelete, onEdit, onComplete }) => {
       {task.due_date && <p className="due">Due: {task.due_date}</p>}
       <div className="task-actions">
         {!task.completed && (
-          <button onClick={() => onComplete(task.id)}>✓ Complete</button>
+          <button className="complete" onClick={() => onComplete(task.id)}>✓ Complete</button>
         )}
-        <button onClick={() => onEdit(task)}>✎ Edit</button>
-        <button onClick={() => onDelete(task.id)}>🗑 Delete</button>
+        <button className="edit" onClick={() => onEdit(task)}>✎ Edit</button>
+        <button className="delete" onClick={() => onDelete(task.id)}>🗑 Delete</button>
       </div>
     </div>
   );
