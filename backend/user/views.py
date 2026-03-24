@@ -3,6 +3,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 from .serializers import UserSerializer, LoginSerializer
 
 class RegisterView(generics.CreateAPIView):
@@ -12,7 +14,14 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+
+        try:
+            user = serializer.save()
+        except IntegrityError:
+            raise ValidationError({
+                'detail': 'User with provided username or email already exists.'
+            })
+
         return Response({
             "message": "User created successfully",
             "user": {

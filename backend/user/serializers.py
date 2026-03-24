@@ -1,6 +1,7 @@
 import re
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 
@@ -27,7 +28,12 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if not value or '@' not in value:
             raise serializers.ValidationError('Please enter a valid email address.')
-        return value.lower().strip()
+
+        email_clean = value.lower().strip()
+        if User.objects.filter(email__iexact=email_clean).exists():
+            raise serializers.ValidationError('A user with this email already exists.')
+
+        return email_clean
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -36,12 +42,32 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
+
+        username = validated_data['username']
+        email = validated_data['email']
+
+        if User.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError({
+                'email': 'A user with this email already exists.'
+            })
+
+        final_username = username
+        counter = 1
+        while User.objects.filter(username__iexact=final_username).exists():
+            final_username = f"{username}{counter}"
+            counter += 1
+
+        try:
+            user = User.objects.create_user(
+                username=final_username,
+                email=email,
+                password=validated_data['password']
+            )
+            return user
+        except IntegrityError:
+            raise serializers.ValidationError({
+                'detail': 'User with provided username or email already exists.'
+            })
 
 class LoginSerializer(TokenObtainPairSerializer):
     @classmethod
