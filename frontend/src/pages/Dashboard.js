@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import { fetchTasks, createTask, updateTask, deleteTask, completeTask } from '../services/api';
 
 const Dashboard = () => {
+  const { user, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,8 @@ const Dashboard = () => {
       setTasks([response.data, ...tasks]);
     } catch (error) {
       console.error('Error creating task:', error);
-      setError(`Failed to create task: ${error.message}`);
+      const detail = error.response?.data?.detail || error.response?.data || error.message;
+      setError(`Failed to create task: ${detail}`);
     }
   };
 
@@ -64,7 +67,8 @@ const Dashboard = () => {
       setEditingTask(null);
     } catch (error) {
       console.error('Error updating task:', error);
-      setError(`Failed to update task: ${error.message}`);
+      const detail = error.response?.data?.detail || error.response?.data || error.message;
+      setError(`Failed to update task: ${detail}`);
     }
   };
 
@@ -77,7 +81,8 @@ const Dashboard = () => {
       setTasks(tasks.filter(t => t.id !== id));
     } catch (error) {
       console.error('Error deleting task:', error);
-      setError(`Failed to delete task: ${error.message}`);
+      const detail = error.response?.data?.detail || error.response?.data || error.message;
+      setError(`Failed to delete task: ${detail}`);
     }
   };
 
@@ -90,7 +95,8 @@ const Dashboard = () => {
       setTasks(tasks.map(t => t.id === id ? { ...t, completed: true } : t));
     } catch (error) {
       console.error('Error completing task:', error);
-      setError(`Failed to complete task: ${error.message}`);
+      const detail = error.response?.data?.detail || error.response?.data || error.message;
+      setError(`Failed to complete task: ${detail}`);
     }
   };
 
@@ -104,8 +110,14 @@ const Dashboard = () => {
 
   return (
     <div className="container">
-      <h1>Project: Smart Task Tracker</h1>
-      <h2 className="project-heading">Manage your tasks in a clean, white UI</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div>
+          <h1>Project: Smart Task Tracker</h1>
+          <h2 className="project-heading">Manage your tasks in a clean, white UI</h2>
+          {user && <p>Welcome, {user.username || user.sub}!</p>}
+        </div>
+        <button onClick={logout} className="logout-btn">Logout</button>
+      </div>
 {error && (
         <div className="error">
           Error: {error}
