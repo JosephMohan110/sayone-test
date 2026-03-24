@@ -1,0 +1,11 @@
+# ignore frontend and node_modules to keep backend image small
+frontend/
+node_modules/
+*.log
+.git
+__pycache__/
+*.pyc
+.env
+Project_structure.txt
+package-lock.json
+package.json
