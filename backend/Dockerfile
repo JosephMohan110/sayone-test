@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . ./
+COPY backend/ ./
 
 # Collect static files (if needed) (change or remove if no static collection needed)
 # RUN python manage.py collectstatic --noinput
