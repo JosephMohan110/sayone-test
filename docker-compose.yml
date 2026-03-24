@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:80'
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sayone
+      POSTGRES_USER: sayone
+      POSTGRES_PASSWORD: sayonepassword
+
+volumes:
+  pgdata:
