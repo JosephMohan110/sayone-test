@@ -105,12 +105,20 @@ const TaskForm = ({ onCreate, onUpdate, editingTask, onCancel }) => {
       </div>
       <div>
         <label>Category</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="work">Work</option>
-          <option value="personal">Personal</option>
-          <option value="shopping">Shopping</option>
-          <option value="other">Other</option>
-        </select>
+        <input
+          list="category-options"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Work, Personal, Shopping, Other, etc."
+        />
+        <datalist id="category-options">
+          <option value="work" />
+          <option value="personal" />
+          <option value="shopping" />
+          <option value="other" />
+          <option value="family" />
+          <option value="health" />
+        </datalist>
       </div>
       <div>
         <label>Due Date</label>
