@@ -30,10 +30,11 @@ const Register = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container auth-container">
       <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit}>
         <input
+          className="auth-input"
           type="text"
           name="username"
           placeholder="Username"
@@ -42,6 +43,7 @@ const Register = () => {
           required
         />
         <input
+          className="auth-input"
           type="email"
           name="email"
           placeholder="Email"
@@ -50,6 +52,7 @@ const Register = () => {
           required
         />
         <input
+          className="auth-input"
           type="password"
           name="password"
           placeholder="Password"
@@ -57,10 +60,10 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        <button type="submit">Register</button>
+        <button className="auth-button" type="submit">Register</button>
       </form>
-      {error && <p className="error">{error}</p>}
-      <p>
+      {error && <p className="error auth-error">{error}</p>}
+      <p className="auth-switch">
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>

@@ -109,12 +109,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="container dashboard-container">
+      <div className="dashboard-header">
         <div>
           <h1>Project: Smart Task Tracker</h1>
-          <h2 className="project-heading">Manage your tasks in a clean, white UI</h2>
-          {user && <p>Welcome, {user.username || user.sub}!</p>}
+          <h2 className="project-heading">Manage your tasks</h2>
+          {user && <p className="welcome-text">Welcome, {user.username || user.sub}!</p>}
         </div>
         <button onClick={logout} className="logout-btn">Logout</button>
       </div>

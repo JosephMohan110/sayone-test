@@ -68,3 +68,6 @@ htmlcov/
 *.bak
 
 run.txt
+
+package-lock.json
+package.json
