@@ -1,0 +1,40 @@
+smart-task-tracker/
+├── backend/
+│   ├── backend/               # Django project settings
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── task/                  # Django app
+│   │   ├── migrations/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   └── tests.py
+│   ├── venv/                  # Virtual environment (ignored in git)
+│   ├── db.sqlite3
+│   ├── manage.py
+│   └── requirements.txt
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── TaskForm.js
+│   │   │   ├── TaskList.js
+│   │   │   └── TaskItem.js
+│   │   ├── pages/
+│   │   │   └── Dashboard.js
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   └── index.css
+│   ├── package.json
+│   └── README.md
+├── docs/                      # Optional documentation
+└── README.md                  # Project overview
